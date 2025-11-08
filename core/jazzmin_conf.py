@@ -2,7 +2,7 @@ JAZZMIN_SETTINGS = {
     "site_title": "E-commerce Admin",
     "site_header": "E-commerce",
     # "site_logo": "ayoluchun.jpeg",
-    # "login_logo": "",
+    "login_logo": "",
     "site_logo_classes": "img-circle",
     "site_icon": "apple.jpg",
     "welcome_sign": "Welcome to the E-commerce Admin",

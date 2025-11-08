@@ -1,3 +1,34 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-# Create your models here.
+
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("Created at"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("Updated at"))
+
+    class Meta:
+        abstract = True
+
+
+class Country(BaseModel):
+    country_name = models.CharField(max_length=100, verbose_name=_("Country Name"))
+    code = models.CharField(max_length=10, unique=True, verbose_name=_("Country Code"))
+
+    class Meta:
+        verbose_name = _("Country")
+        verbose_name_plural = _("Countries")
+
+    def __str__(self):
+        return f"{self.country_name} - {self.code}"
+    
+
+class City(BaseModel):
+    city_name = models.CharField(max_length=100, verbose_name=_("City Name"))
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="cities", verbose_name=_("Country"))
+
+    class Meta:
+        verbose_name = _("City")
+        verbose_name_plural = _("Cities")
+
+    def __str__(self):
+        return f"{self.city_name}, {self.country.code}"
