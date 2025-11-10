@@ -12,7 +12,8 @@ class Post(BaseModel):
                             )
     slug = models.SlugField(max_length=255,
                             unique=True,
-                            verbose_name=_("Slug")
+                            verbose_name=_("Slug"),
+                            blank=True
                             )
     # In Figma design, it looks like this => DE - Hamburg, 2022 | Office
     short_description = models.CharField(max_length=255,
@@ -22,7 +23,7 @@ class Post(BaseModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = make_slug(self.title)
-        super().save(*args, *kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("Blog Post")
