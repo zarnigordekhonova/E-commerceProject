@@ -42,13 +42,19 @@ class Product(BaseModel):
                                default=0)
     is_new = models.BooleanField(verbose_name=_("Is new product"),
                                  default=False)
+    designed_year = models.DateField(auto_now_add=True,
+                                     verbose_name=_("Product designed year"))
+    designed_by = models.ForeignKey("common.Designer",
+                                    on_delete=models.DO_NOTHING,
+                                    related_name="product_designers",
+                                    verbose_name=_("Product designer"))
     category = models.ForeignKey(Category, 
                                  on_delete=models.CASCADE, 
                                  related_name='products',
                                  verbose_name=_("Category"))
     
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.designed_year}"
     
     def save(self, *args, **kwargs):
         if not self.slug:

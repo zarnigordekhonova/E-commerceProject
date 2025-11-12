@@ -6,7 +6,7 @@ from .serializers import PostDetailSerializer
 
 
 class PostDetailAPIView(RetrieveAPIView):
-    queryset = Post.objects.get()
+    queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
     permission_classes = [AllowAny, ]
     lookup_field = "pk"

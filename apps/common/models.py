@@ -32,3 +32,20 @@ class City(BaseModel):
 
     def __str__(self):
         return f"{self.city_name}, {self.country.code}"
+    
+
+class Designer(BaseModel):
+     full_name = models.CharField(max_length=128,
+                                  unique=True,
+                                  verbose_name=_("Product designer"))
+     designer_image = models.ImageField(upload_to="designers/", 
+                                        null=True,
+                                        blank=True,
+                                        verbose_name=_("Designer image"))
+
+     class Meta:
+         verbose_name = _("Designer")
+         verbose_name_plural = _("Designers")
+
+     def __str__(self):
+         return self.full_name        
