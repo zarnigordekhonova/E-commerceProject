@@ -9,6 +9,7 @@ class Post(BaseModel):
     title = models.CharField(max_length=255,
                             verbose_name=_("Title"),
                             help_text=_("Enter the title of the blog post."),
+                            unique=True
                             )
     slug = models.SlugField(max_length=255,
                             unique=True,
