@@ -6,6 +6,9 @@ from .serializers import ProductListByCategorySerializer
 
 
 class ProductListByCategoryAPIView(ListAPIView):
+    """
+    
+    """
     serializer_class = ProductListByCategorySerializer
     permission_classes = [AllowAny, ]
     lookup_field = "pk"

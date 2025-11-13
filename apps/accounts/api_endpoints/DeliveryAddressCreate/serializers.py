@@ -7,7 +7,7 @@ from apps.accounts.models import UserDeliveryAddres
 User =  get_user_model()
 
 
-class DeliveryAddressSerializer(serializers.Serializer):
+class DeliveryAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserDeliveryAddres
         fields = (

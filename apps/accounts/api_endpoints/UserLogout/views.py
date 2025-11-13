@@ -7,6 +7,22 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 
 class UserLogoutAPIView(APIView):
+    """
+    APIView for logging out.
+    POST api/accounts/user/logout/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Request body example:
+    {
+        "refresh" : "your_refresh_token"
+    }
+
+    Request body example(200 OK):
+    {
+        "success": "Logged out successfully"
+    }
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):

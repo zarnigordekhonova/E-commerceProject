@@ -16,6 +16,23 @@ User = get_user_model()
 
 
 class UserRegisterAPIView(CreateAPIView):
+    """
+    Generic APIView for registration.
+    POST api/accounts/user/register/
+
+    Request body example:
+    {
+        "full_name": "your_full_name",
+        "username": "your_username",
+        "email" : "your_email@example.com",
+        "password": "your_password"
+    }
+
+    Response body example(201 Created):
+    {
+        "detail": "Activation email has been sent to your email address. Check your inbox."
+    }
+    """
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
     permission_classes = [AllowAny,]
@@ -27,7 +44,7 @@ class UserRegisterAPIView(CreateAPIView):
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        scheme = "https" if user.is_secure() else "http"
+        scheme = "https" if request.is_secure() else "http"
         current_site = request.get_host()
         activation_link = f"{scheme}://{current_site}/api/users/activate/{uid}/{token}/"
 

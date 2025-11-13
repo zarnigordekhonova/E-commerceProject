@@ -5,6 +5,13 @@ from apps.accounts.models import UserDeliveryAddres
 
 
 class DeliveryAddressDeleteAPIView(DestroyAPIView):
+    """
+    Generic APIView for deleting user's delivery address.
+    DELETE api/accounts/delivery-address/id/delete/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+    Response body returns just status code, 204 No Content.
+    """
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
