@@ -45,7 +45,7 @@ class CustomUserAdmin(BaseUserAdmin):
 class UserDeliveryAddresAdmin(admin.ModelAdmin):
     """Admin configuration for UserDeliveryAddres model"""
     
-    list_display = ['user', 'country', 'city', 'street', 'building_number', 'is_default', 'created_at']
+    list_display = ['id', 'user', 'country', 'city', 'street', 'building_number', 'is_default', 'created_at']
     list_filter = ['is_default', 'country', 'city', 'created_at']
     search_fields = ['user__email', 'user__username', 'street', 'building_number']
     ordering = ['-created_at']

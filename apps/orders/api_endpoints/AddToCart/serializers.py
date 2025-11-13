@@ -7,7 +7,6 @@ class ShoppingCartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.product.name', read_only=True)
     product_image = serializers.SerializerMethodField()
     subtotal = serializers.DecimalField(
-        source='subtotal',
         read_only=True,
         max_digits=10,
         decimal_places=2

@@ -10,6 +10,26 @@ from .serializers import UserLoginSerializer, UserSerializer
 
 
 class UserLoginAPIView(GenericAPIView):
+    """
+    Generic APIView for logging in as an authenticated user.
+    POST api/accounts/user/login/
+
+    Request body example:
+    {
+        "email" : "your_email@example.com",
+        "password": "your_password"
+    }
+
+    Response body example(200 OK):
+    {
+        "user": {
+            "username": "your_username"
+        },
+        "refresh": "your_refresh_token",
+        "access": "your_access_token",
+        "message": "Login successful"
+    }
+    """
     permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
 

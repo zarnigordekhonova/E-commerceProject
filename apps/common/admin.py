@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import City, Country
+from .models import City, Country, Designer
 
 
 @admin.register(Country)
@@ -38,3 +38,20 @@ class CityAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at']
     
     autocomplete_fields = ['country']
+
+
+@admin.register(Designer)
+class DesignerAdmin(admin.ModelAdmin):
+    """Admin configuration for Designer model"""
+    
+    list_display = ['id', 'full_name', 'designer_image', 'created_at', 'updated_at']
+    list_filter = ['created_at']
+    search_fields = ['full_name']
+    ordering = ['id']
+    
+    fieldsets = (
+        (_('Designer Details'), {'fields': ('full_name', 'designer_image')}),
+        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']

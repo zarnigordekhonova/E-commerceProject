@@ -7,6 +7,26 @@ from .serializers import DeliveryAddressSerializer
 
 
 class DeliveryAddressCreateAPIView(CreateAPIView):
+    """
+    Generic APIView for adding user's delivery address.
+    POST api/accounts/delivery-address/create/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Request body example:
+    {
+        "country" : 1, => ForeignKey relation with Country model
+        "city" : 1, => ForeignKey relation with City model
+        "street" : "street_name",
+        "building_number" : bulding_number, => can either be number or mix of numbers and ltters
+        "is_default": "True/False"
+    }
+
+    Response body example(201 Created):
+    {
+        "detail": "Delivery address has been added successfully."
+    }
+    """
     serializer_class = DeliveryAddressSerializer
     permission_classes = [IsAuthenticated]
 

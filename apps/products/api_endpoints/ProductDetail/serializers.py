@@ -49,6 +49,8 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     variants = ProductVariantSerializer(many=True, read_only=True)
     reviews = ProductCommentSerializer(source="product_comment", many=True, read_only=True)
+    reviews_number = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Product
@@ -64,3 +66,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "variants",
             "reviews"
         )
+
+    def get_reviews_number(self, obj):
+        return obj.product_comment.count()
