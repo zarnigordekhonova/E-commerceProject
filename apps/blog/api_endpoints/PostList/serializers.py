@@ -10,14 +10,15 @@ class PostImageSerializer(serializers.ModelSerializer):
 
 
 class PostListSerializer(serializers.ModelSerializer):
-    posts = PostImageSerializer(many=True, read_only=True)
+    images = PostImageSerializer(source='posts', many=True, read_only=True)
+    
     class Meta:
         model = Post
         fields = (
             "id",
             "title", 
             "short_description",
-            "posts", # post related images
+            "images", # post related images
             "created_at",
             "updated_at"
         )

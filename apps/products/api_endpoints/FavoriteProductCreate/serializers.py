@@ -30,7 +30,7 @@ class FavoriteProductCreateSerializer(serializers.ModelSerializer):
         )
 
     def get_product_image(self, obj):
-        image = obj.product.product.images.first()
+        image = obj.product.images.first()
         if image:
             return image.image.url
         return None

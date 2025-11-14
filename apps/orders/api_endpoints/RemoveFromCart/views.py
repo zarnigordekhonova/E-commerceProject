@@ -8,6 +8,17 @@ from apps.orders.api_endpoints.AddToCart.serializers import ShoppingCartItemSeri
 
 
 class RemoveFromCartAPIView(APIView):
+    """
+    Generic APIView endpoint for removing a product from cart.
+
+    DELETE api/orders/remove/1/cart/
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Response body example(200 OK):
+    {
+        "detail": "Item removed from cart."
+    }
+    """
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, item_id):

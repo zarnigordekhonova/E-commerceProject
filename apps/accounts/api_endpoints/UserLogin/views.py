@@ -11,7 +11,7 @@ from .serializers import UserLoginSerializer, UserSerializer
 
 class UserLoginAPIView(GenericAPIView):
     """
-    Generic APIView for logging in as an authenticated user.
+    Generic APIView endpoint for logging in as an authenticated user.
     POST api/accounts/user/login/
 
     Request body example:

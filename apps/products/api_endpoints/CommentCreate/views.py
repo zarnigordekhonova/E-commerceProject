@@ -8,6 +8,28 @@ from .serializers import ProductCommentCreateSerializer
 
 
 class ProductCommentCreateAPIView(CreateAPIView):
+    """
+    Generic APIView endpoint for commenting on a specific product.
+    POST api/products/comment/create/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Request body example:
+    {
+        "comment": "I like this product.",
+        "product": 3
+    }
+
+    Response body example(201 Created):
+    {
+        "detail": "Comment created successfully.",
+        "comment": {
+            "id": 1,
+            "comment": "I like this product.",
+            "product": 3
+        }
+    }
+    """
     serializer_class = ProductCommentCreateSerializer
     permission_classes = [IsAuthenticated]
 

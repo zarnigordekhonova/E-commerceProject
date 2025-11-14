@@ -3,6 +3,11 @@ from rest_framework import serializers
 from apps.orders.models import ShoppingCart, ShoppingCartItem
 
 
+class AddToCartSerializer(serializers.Serializer):
+    product_variant_id = serializers.IntegerField(required=True)
+    quantity = serializers.IntegerField(required=False, default=1)
+
+
 class ShoppingCartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.product.name', read_only=True)
     product_image = serializers.SerializerMethodField()
@@ -26,7 +31,7 @@ class ShoppingCartItemSerializer(serializers.ModelSerializer):
         )
 
     def get_product_image(self, obj):
-        image = obj.product.product.images.first()
+        image = obj.product.images.first()
         return image.image.url if image else None
 
 

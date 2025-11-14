@@ -172,7 +172,6 @@ class OrderDetail(BaseModel):
     first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
     phone_number = models.CharField(
-        unique=True,    
         max_length=50,  
         validators=[
             RegexValidator(

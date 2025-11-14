@@ -8,7 +8,8 @@ from .serializers import DeliveryAddressSerializer
 
 class DeliveryAddressCreateAPIView(CreateAPIView):
     """
-    Generic APIView for adding user's delivery address.
+    Generic APIView endpoint for adding user's delivery address.
+    
     POST api/accounts/delivery-address/create/
 
     On Postman/Swagger, provide the Authorization Bearer token.

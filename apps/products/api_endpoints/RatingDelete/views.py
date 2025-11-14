@@ -8,7 +8,22 @@ from rest_framework.permissions import IsAuthenticated
 from apps.products.models import ProductRating
 
 
+# Just in case
 class ProductRatingDeleteAPIView(DestroyAPIView):
+    """
+    Generic APIView endpoint for deleting the rating.
+    
+    DELETE api/products/delete/id/rating/
+    For id, make sure you enter the rating id, not product id.
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Response body example(204 No Content):
+    {
+        "detail": "Rating deleted successfully."
+    }
+
+    """
     queryset = ProductRating.objects.all()
     permission_classes = [IsAuthenticated]
     lookup_field = "pk"

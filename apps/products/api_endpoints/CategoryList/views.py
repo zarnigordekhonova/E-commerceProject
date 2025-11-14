@@ -11,7 +11,7 @@ from .serializers import CategorySerializer
 
 class CategoryListAPIView(ListAPIView):
     """
-    Generic APIView for getting the list of available categories.
+    Generic APIView endpoint for getting the list of available categories.
     GET api/products/categories/
 
     Response body example(200 OK):

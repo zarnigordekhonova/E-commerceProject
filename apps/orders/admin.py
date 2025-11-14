@@ -9,7 +9,7 @@ from .models import ShoppingCart, ShoppingCartItem, Order, OrderDetail
 class ShoppingCartAdmin(admin.ModelAdmin):
     """Admin configuration for ShoppingCart model"""
     
-    list_display = ['user', 'total_price', 'item_count', 'is_empty', 'created_at', 'updated_at']
+    list_display = ['id', 'user', 'total_price', 'item_count', 'is_empty', 'created_at', 'updated_at']
     list_filter = ['created_at', 'updated_at']
     search_fields = ['user__email', 'user__username', 'user__full_name']
     ordering = ['-created_at']
@@ -64,7 +64,7 @@ class ShoppingCartItemAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     """Admin configuration for Order model"""
     
-    list_display = ['order_number', 'user', 'status_badge', 'shipping_type', 'total', 'shipping_cost', 'created_at']
+    list_display = ['id', 'order_number', 'user', 'status_badge', 'shipping_type', 'total', 'shipping_cost', 'created_at']
     list_filter = ['status', 'shipping_type', 'created_at', 'updated_at']
     search_fields = ['order_number', 'user__email', 'user__username']
     ordering = ['-created_at']

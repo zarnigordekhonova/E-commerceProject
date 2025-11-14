@@ -8,6 +8,28 @@ from .serializers import ProductRatingAddSerializer
 
 
 class ProductRatingAddAPIView(CreateAPIView):
+    """
+    Generic APIView endpoint for giving a rating to product.
+    POST api/products/add/rating/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Request body example:
+    {
+        "rating": 4,
+        "product": 3
+    }
+
+    Response body example(201, Created):
+    {
+        "detail": "Rating added successfully.",
+        "rating": {
+            "id": 1,
+            "rating": 4.0,
+            "product": 3
+        }
+    }
+    """
     serializer_class = ProductRatingAddSerializer
     permission_classes = [IsAuthenticated]
 
