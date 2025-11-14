@@ -5,7 +5,7 @@ from apps.blog.api_endpoints.PostList.serializers import PostImageSerializer
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
-    posts = PostImageSerializer(many=True, read_only=True)
+    images = PostImageSerializer(source="posts", many=True, read_only=True)
 
     class Meta:
         model = Post
@@ -15,7 +15,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             "slug",
             "short_description",
             "description",
-            "posts",
+            "images",
             "created_at",
             "updated_at",
         )

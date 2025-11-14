@@ -14,10 +14,10 @@ from .models import (Category,
 class CategoryAdmin(admin.ModelAdmin):
     """Admin configuration for Category model"""
     
-    list_display = ['category_name', 'slug', 'created_at', 'updated_at']
+    list_display = ['id','category_name', 'slug', 'created_at', 'updated_at']
     list_filter = ['created_at', 'updated_at']
     search_fields = ['category_name', 'slug']
-    ordering = ['category_name']
+    ordering = ['id']
     
     fieldsets = (
         (_('Category Details'), {'fields': ('category_name', 'slug')}),
@@ -33,18 +33,24 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     """Admin configuration for Product model"""
     
-    list_display = ['name', 'category', 'rating', 'is_new', 'created_at', 'updated_at']
-    list_filter = ['category', 'is_new', 'rating', 'created_at']
+    list_display = ['id', 'name', 'category', 'rating', 'is_new', 'designed_by', 'designed_year', 'created_at']
+    list_filter = ['category', 'is_new', 'rating', 'designed_year', 'created_at']
     search_fields = ['name', 'slug', 'description']
     ordering = ['name']
     
     fieldsets = (
-        (_('Product Details'), {'fields': ('name', 'slug', 'category', 'description')}),
-        (_('Product Info'), {'fields': ('rating', 'is_new')}),
-        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+        (_('Product Details'), {
+            'fields': ('name', 'slug', 'category', 'description')
+        }),
+        (_('Product Info'), {
+            'fields': ('rating', 'is_new', 'designed_by')
+        }),
+        (_('Timestamps'), {
+            'fields': ('designed_year', 'created_at', 'updated_at')
+        }),
     )
     
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ('designed_year', 'created_at', 'updated_at')
     
     prepopulated_fields = {'slug': ('name',)}
     
@@ -67,7 +73,7 @@ class ProductAdmin(admin.ModelAdmin):
 class ProductVariantAdmin(admin.ModelAdmin):
     """Admin configuration for ProductVariant model"""
     
-    list_display = ['product', 'color', 'measurement', 'sku_code', 'price', 'discount_price', 'discount_percentage', 'stock_status', 'created_at']
+    list_display = ['id', 'product', 'color', 'measurement', 'sku_code', 'price', 'discount_percentage', 'stock_quantity', 'created_at']
     list_filter = ['product__category', 'color', 'stock_quantity', 'created_at']
     search_fields = ['product__name', 'color', 'sku_code', 'measurement']
     ordering = ['-created_at']
@@ -86,35 +92,17 @@ class ProductVariantAdmin(admin.ModelAdmin):
     
     actions = ['mark_out_of_stock', 'apply_10_percent_discount', 'apply_20_percent_discount', 'remove_discount']
     
-    @admin.display(description='Stock Status', ordering='stock_quantity')
-    def stock_status(self, obj):
-        """Display stock status with color"""
-        if obj.stock_quantity == 0:
-            return format_html(
-                '<span style="color: #dc3545; font-weight: bold;">OUT OF STOCK</span>'
-            )
-        elif obj.stock_quantity < 10:
-            return format_html(
-                '<span style="color: #ffc107; font-weight: bold;">{} (LOW)</span>',
-                obj.stock_quantity
-            )
-        else:
-            return format_html(
-                '<span style="color: #28a745; font-weight: bold;">{}</span>',
-                obj.stock_quantity
-            )
-    
     @admin.action(description='Mark as out of stock')
     def mark_out_of_stock(self, request, queryset):
         updated = queryset.update(stock_quantity=0)
         self.message_user(request, f'{updated} variant(s) marked as out of stock.')
     
-    @admin.action(description='Apply 10% discount')
+    @admin.action(description='Apply 10%% discount')  # ← Use %% to escape
     def apply_10_percent_discount(self, request, queryset):
         updated = queryset.update(discount_percentage=10)
         self.message_user(request, f'{updated} variant(s) now have 10% discount.')
-    
-    @admin.action(description='Apply 20% discount')
+
+    @admin.action(description='Apply 20%% discount')  # ← Use %% to escape
     def apply_20_percent_discount(self, request, queryset):
         updated = queryset.update(discount_percentage=20)
         self.message_user(request, f'{updated} variant(s) now have 20% discount.')
@@ -123,7 +111,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
     def remove_discount(self, request, queryset):
         updated = queryset.update(discount_percentage=0, discount_price=0)
         self.message_user(request, f'Discount removed from {updated} variant(s).')
-
+        
 
 @admin.register(ProductRating)
 class ProductRatingAdmin(admin.ModelAdmin):
@@ -172,7 +160,7 @@ class ProductCommentAdmin(admin.ModelAdmin):
 class UserProductFavoriteAdmin(admin.ModelAdmin):
     """Admin configuration for UserProductFavorite model"""
     
-    list_display = ['user', 'product', 'product_name', 'created_at']
+    list_display = ['id', 'user', 'product', 'product_name', 'created_at']
     list_filter = ['product__product__category', 'created_at']
     search_fields = ['user__email', 'user__username', 'product__product__name']
     ordering = ['-created_at']

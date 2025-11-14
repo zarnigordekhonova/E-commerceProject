@@ -7,6 +7,17 @@ from apps.orders.models import ShoppingCart
 
 
 class ClearCartAPIView(APIView):
+    """
+    APIView endpoint for clearing the cart.
+    POST api/orders/clear/cart/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Response body example(200 OK):
+    {
+        "detail": "Cart has been cleared."
+    }
+    """
     permission_classes = [IsAuthenticated, ]
     
     def post(self, request):

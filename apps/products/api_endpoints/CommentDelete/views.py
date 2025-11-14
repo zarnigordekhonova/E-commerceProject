@@ -8,6 +8,17 @@ from apps.products.models import ProductComment
 
 
 class ProductCommentDeleteAPIView(DestroyAPIView):
+    """
+    Generic APIView endpoint for deleting a personal comment.
+    DELETE api/products/comment/id/delete/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Response body example(204 No Content):
+    {
+        "detail": "Comment deleted successfully."
+    }
+    """
     queryset = ProductComment.objects.all()
     permission_classes = [IsAuthenticated]
     lookup_field = "pk"

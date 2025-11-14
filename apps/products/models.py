@@ -110,7 +110,7 @@ class ProductVariant(BaseModel):
             discount_amount = self.price * (Decimal(self.discount_percentage) / 100)
             self.discount_price = self.price - discount_amount
             self.discount_price = self.discount_price.quantize(Decimal('0.01'))
-        return super().save(*args, *kwargs)
+        return super().save(*args, **kwargs)
     
     class Meta:
         verbose_name = _("Product Variant")

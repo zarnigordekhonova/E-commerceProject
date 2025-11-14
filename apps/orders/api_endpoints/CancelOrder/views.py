@@ -7,6 +7,17 @@ from apps.orders.models import Order, OrderDetail
 
 
 class OrderCancelAPIView(APIView):
+    """
+    Generic APIView endpoint for cancelling the order
+    POST api/orders/cancel/id/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Response body example:
+    {
+        "detail": "Order has been cancelled."
+    } 
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request, order_id):

@@ -31,17 +31,18 @@ class OrderCreateSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         user = self.context['request'].user
-        shipping_type = validated_data["shipping_type"]
-        order_detail_data = validated_data["order_detail"]
+        shipping_type = validated_data['shipping_type']
+        order_detail_data = validated_data['order_detail']
 
+        # Get user's cart
         try:
             cart = ShoppingCart.objects.get(user=user)
         except ShoppingCart.DoesNotExist:
             raise serializers.ValidationError("Shopping cart not found.")
-        
+
         if cart.is_empty:
             raise serializers.ValidationError("Cannot create order from empty cart.")
-        
+
         shipping_cost = calculate_shipping_cost(shipping_type)
 
         with transaction.atomic():
@@ -50,18 +51,17 @@ class OrderCreateSerializer(serializers.Serializer):
                 cart=cart,
                 shipping_type=shipping_type,
                 shipping_cost=shipping_cost,
-                total=cart.total_price + shipping_cost,
-                status=Order.OrderStatus.PENDING 
+                status=Order.OrderStatus.PENDING
             )
+
+            order.total = cart.total_price + shipping_cost
+            order.save(update_fields=['total'])
 
             order_detail = OrderDetail.objects.create(
                 order=order,
-                **order_detail.data
+                **order_detail_data
             )
 
             cart.clear()
 
         return order
-
-
-

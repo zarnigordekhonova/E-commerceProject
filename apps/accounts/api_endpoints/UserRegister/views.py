@@ -17,7 +17,7 @@ User = get_user_model()
 
 class UserRegisterAPIView(CreateAPIView):
     """
-    Generic APIView for registration.
+    Generic APIView endpoint for registration.
     POST api/accounts/user/register/
 
     Request body example:

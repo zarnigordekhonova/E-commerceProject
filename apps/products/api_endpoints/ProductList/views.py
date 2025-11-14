@@ -9,6 +9,40 @@ from .serializers import ProductListSerializer
 
 
 class ProductsListAPIView(ListAPIView):
+    """
+    Generic APIView endpoint for getting all products.
+    GET  api/products/list/
+
+    On Postman/Swagger, provide the Authorization Bearer token.
+
+    Response body example(200 OK):
+    [
+        {
+            "id": 1,
+            "name": "product 1",
+            "designed_by": 1,
+            "designed_year": 2025
+        },
+        {
+            "id": 2,
+            "name": "product 2",
+            "designed_by": 1,
+            "designed_year": 2025
+        },
+        {
+            "id": 3,
+            "name": "kitchen table",
+            "designed_by": 1,
+            "designed_year": 2025
+        },
+        {
+            "id": 4,
+            "name": "Kitchen cupboard",
+            "designed_by": 1,
+            "designed_year": 2025
+        }
+    ]
+    """
     queryset = Product.objects.all()
     serializer_class = ProductListSerializer
     permission_classes = [AllowAny, ]

@@ -46,7 +46,7 @@ class ProductCommentSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.category_name", read_only=True)
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     variants = ProductVariantSerializer(many=True, read_only=True)
     reviews = ProductCommentSerializer(source="product_comment", many=True, read_only=True)
     reviews_number = serializers.SerializerMethodField()
@@ -69,3 +69,13 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     def get_reviews_number(self, obj):
         return obj.product_comment.count()
+    
+    def get_images(self, obj):
+        images = []
+        variants = obj.variants.all()
+        if variants:
+            for variant in variants:
+                images.extend(variant.images.all())
+            return ProductImageSerializer(images, many=True).data
+        return []
+

@@ -4,8 +4,8 @@ from apps.products.models import Category, Product
 from apps.products.api_endpoints.ProductList.serializers import ProductImageSerializer
 
 
-class ProductListByCategorySerializer(serializers.Serializer):
-    images = ProductImageSerializer(many=True, read_only=True)
+class ProductListByCategorySerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
     discount_percentage = serializers.SerializerMethodField()
     
@@ -19,6 +19,14 @@ class ProductListByCategorySerializer(serializers.Serializer):
             "discount_percentage",
             "rating"
         )
+
+    def get_images(self, obj):
+        """Gets the images of the first variant of the product."""
+        first_variant = obj.variants.first()
+        if first_variant:
+            images = first_variant.images.all()
+            return ProductImageSerializer(images, many=True).data
+        return []
 
     def get_price(self, obj):
         first_variant = obj.variants.first()

@@ -6,7 +6,8 @@ from .serializers import UserGetProfileSerializer
 
 class UserGetUpdateProfileAPIView(RetrieveUpdateAPIView):
     """
-    Generic APIView for retrieving/updating user profile.
+    Generic APIView endpoint for retrieving/updating user profile.
+    
     GET/PUT/PATCH  api/accounts/user/profile/
 
     For each method, on Postman/Swagger, provide the Authorization Bearer token.

@@ -13,7 +13,8 @@ CustomUser = get_user_model()
 
 class ActivationAPIView(APIView):
     """
-    APIView for activating user account by activation link.
+    APIView endpoint for activating user account by activation link.
+    
     GET api/accounts/activate/
     
     On Swagger, for uidb64 enter two-letter encoded string,

@@ -7,7 +7,8 @@ from apps.accounts.api_endpoints.DeliveryAddressCreate.serializers import Delive
 
 class DeliveryAddressUpdateGetAPIView(RetrieveUpdateAPIView):
     """
-    Generic APIView for retrieving/updating user's delivery address.
+    Generic APIView endpoint for retrieving/updating user's delivery address.
+    
     GET/PUT/PATCH api/accounts/delivery-address/id/update/
 
     On Postman/Swagger, provide the Authorization Bearer token.
