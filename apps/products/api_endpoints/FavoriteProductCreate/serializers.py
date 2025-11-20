@@ -8,7 +8,6 @@ class FavoriteProductVariantSerializer(serializers.ModelSerializer):
         model = ProductVariant
         fields = (
             "id",
-            "color",
             "price",
             "discount_percentage"
         )

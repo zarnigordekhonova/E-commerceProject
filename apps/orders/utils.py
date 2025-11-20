@@ -1,12 +1,14 @@
-import random, string, uuid
+import random
+import time
 from decimal import Decimal
 
 
 def generate_order_number():
     """Generate a unique order number combining timestamp and random digits."""
-    random_part = ''.join(random.choices(string.digits, k=3))
-    unique_part = str(uuid.uuid4().int)[:5]
-    return f"{unique_part}{random_part}"
+    part1 = f"{random.randint(0, 9999):04d}"
+    part2 = f"{int(time.time() *1000) % 100000:05d}"
+    return f"{part1}_{part2}"
+    
 
 
 def calculate_shipping_cost(shipping_type):

@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import RetrieveAPIView
 
 from .serializers import ProductDetailSerializer
-from apps.products.models import Product, ProductComment
+from apps.products.models import Product, ProductComment, ProductVariant
 
 
 class ProductDetailAPIView(RetrieveAPIView):
@@ -51,18 +51,21 @@ class ProductDetailAPIView(RetrieveAPIView):
     lookup_field = "pk"
 
     def get_queryset(self):
-        queryset = Product.objects.prefetch_related(
-            "variants__images",
-            "variants",
+        return Product.objects.prefetch_related(
+            Prefetch(
+                "variants",
+                queryset=ProductVariant.objects.prefetch_related(
+                    "images",
+                    "variant_options",
+                )
+            ),
             Prefetch(
                 "product_comment",
                 queryset=ProductComment.objects.select_related("user")
             ),
             "product_rating"
-            ).select_related(
-                "category"
-            )
-        return queryset
+        ).select_related("category")
+
     
 
 __all__ = [

@@ -20,6 +20,11 @@ class Post(BaseModel):
     short_description = models.CharField(max_length=255,
                                          verbose_name=_("Short description")) 
     description = models.TextField(verbose_name=_("Description"))   
+    main_image = models.ForeignKey("PostImage",
+                                   on_delete=models.SET_NULL,
+                                   null=True,
+                                   blank=True,
+                                   related_name="main_post_image")
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -38,9 +43,10 @@ class Post(BaseModel):
 class PostImage(BaseModel):
     post = models.ForeignKey(Post,
                              on_delete=models.CASCADE,
-                             related_name="posts",
+                             related_name="images", # changed from "posts" to "images"
                              verbose_name=_("Post")
                              )
+    
     image =  models.ImageField(upload_to="post_images/",
                                null=True,
                                blank=True,
@@ -52,4 +58,5 @@ class PostImage(BaseModel):
     class Meta:
         verbose_name = _("Post Image")
         verbose_name_plural = _("Post Images")
+ 
         

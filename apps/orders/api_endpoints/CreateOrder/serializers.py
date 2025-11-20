@@ -2,7 +2,7 @@ from django.db import transaction
 
 from rest_framework import serializers
 
-from apps.orders.models import Order, OrderDetail, ShoppingCart
+from apps.orders.models import Order, OrderDetail, ShoppingCartItem, OrderItem
 from apps.orders.utils import calculate_shipping_cost
 
 
@@ -34,34 +34,44 @@ class OrderCreateSerializer(serializers.Serializer):
         shipping_type = validated_data['shipping_type']
         order_detail_data = validated_data['order_detail']
 
-        # Get user's cart
-        try:
-            cart = ShoppingCart.objects.get(user=user)
-        except ShoppingCart.DoesNotExist:
-            raise serializers.ValidationError("Shopping cart not found.")
+        cart_items = ShoppingCartItem.objects.filter(user=user)
 
-        if cart.is_empty:
+        if not cart_items.exists():
             raise serializers.ValidationError("Cannot create order from empty cart.")
 
         shipping_cost = calculate_shipping_cost(shipping_type)
 
         with transaction.atomic():
+            items_total = sum(item.subtotal for item in cart_items)
+
+            if shipping_type == Order.ShippingType.FREE:
+                total_price = items_total
+            else:
+                total_price = items_total + shipping_cost
+
             order = Order.objects.create(
                 user=user,
-                cart=cart,
                 shipping_type=shipping_type,
                 shipping_cost=shipping_cost,
-                status=Order.OrderStatus.PENDING
+                total_price=total_price,
+                status = Order.OrderStatus.PENDING
             )
 
-            order.total = cart.total_price + shipping_cost
-            order.save(update_fields=['total'])
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product.price
+                )
 
             order_detail = OrderDetail.objects.create(
                 order=order,
                 **order_detail_data
             )
 
-            cart.clear()
-
+            cart_items.delete()
+            print("CART HAS BEEN CLEARED")
+        
         return order
+

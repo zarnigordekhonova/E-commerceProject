@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from apps.orders.models import ShoppingCart, ShoppingCartItem
+from apps.orders.models import ShoppingCartItem
 from apps.orders.api_endpoints.AddToCart.serializers import ShoppingCartItemSerializer
 
 
@@ -23,18 +23,10 @@ class RemoveFromCartAPIView(APIView):
 
     def delete(self, request, item_id):
         try:
-            cart = ShoppingCart.objects.get(user=request.user)
-        except ShoppingCart.DoesNotExist:
-            return Response(
-                {"detail": "Cart not found."},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        try:
-            cart_item = ShoppingCartItem.objects.get(pk=item_id, cart=cart)
+            cart_item = ShoppingCartItem.objects.get(pk=item_id, user=request.user)
         except ShoppingCartItem.DoesNotExist:
             return Response(
-                {"detail": "Item not found in cart."},
+                {"detail": "Item not found in the cart."},
                 status=status.HTTP_404_NOT_FOUND
             )
 

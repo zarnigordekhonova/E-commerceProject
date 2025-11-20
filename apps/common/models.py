@@ -11,7 +11,7 @@ class BaseModel(models.Model):
 
 
 class Country(BaseModel):
-    country_name = models.CharField(max_length=100, verbose_name=_("Country Name"))
+    name = models.CharField(max_length=100, verbose_name=_("Country Name"))
     code = models.CharField(max_length=10, unique=True, verbose_name=_("Country Code"))
 
     class Meta:
@@ -19,11 +19,11 @@ class Country(BaseModel):
         verbose_name_plural = _("Countries")
 
     def __str__(self):
-        return f"{self.country_name} - {self.code}"
+        return f"{self.name} - {self.code}"
     
 
 class City(BaseModel):
-    city_name = models.CharField(max_length=100, verbose_name=_("City Name"))
+    name = models.CharField(max_length=100, verbose_name=_("City Name"))
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name="cities", verbose_name=_("Country"))
 
     class Meta:
@@ -31,7 +31,7 @@ class City(BaseModel):
         verbose_name_plural = _("Cities")
 
     def __str__(self):
-        return f"{self.city_name}, {self.country.code}"
+        return f"{self.name}, {self.country.code}"
     
 
 class Designer(BaseModel):

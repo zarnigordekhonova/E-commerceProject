@@ -56,7 +56,7 @@ class OrderCreateAPIView(CreateAPIView):
             "order": {
                 "order_number": order.order_number,
                 "created_at": order.created_at,
-                "total": order.total,
+                "total": order.total_price,
                 "payment_method": order_detail.payment_method if order_detail else None,
                 "shipping_type": order.shipping_type,
                 "status": order.status

@@ -1,15 +1,17 @@
 from rest_framework import status
 from rest_framework.response import Response
 
+from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from apps.products.models import ProductVariant
 from .serializers import ShoppingCartItemSerializer, AddToCartSerializer
-from apps.orders.models import ShoppingCart, ShoppingCartItem
+from apps.orders.models import ShoppingCartItem
+from apps.orders.services import add_to_cart
 
 
-class AddToCartAPIView(CreateAPIView):
+class AddToCartAPIView(APIView):
     """
     Generic APIView endpoint for adding a product to the cart.
 
@@ -36,15 +38,14 @@ class AddToCartAPIView(CreateAPIView):
         }
     }
     """
-    serializer_class = AddToCartSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+    def post(self, request, *args, **kwargs):
+        serializer = AddToCartSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
-        product_variant_id = serializer.validated_data['product_variant_id']
-        quantity = serializer.validated_data['quantity']
+
+        product_variant_id = serializer.validated_data["product_variant_id"]
+        quantity = serializer.validated_data["quantity"]
 
         try:
             product_variant = ProductVariant.objects.get(pk=product_variant_id)
@@ -53,27 +54,24 @@ class AddToCartAPIView(CreateAPIView):
                 {"detail": "Product variant not found."},
                 status=status.HTTP_404_NOT_FOUND
             )
-
-        cart, _ = ShoppingCart.objects.get_or_create(user=request.user)
-
-        try:
-            cart_item = ShoppingCartItem.objects.get(cart=cart, product=product_variant)
-            new_quantity = cart_item.quantity + quantity
-        except ShoppingCartItem.DoesNotExist:
-            new_quantity = quantity
-            cart_item = None
-
-        if product_variant.stock_quantity < new_quantity:
+        
+        if product_variant.stock_quantity < quantity:
             return Response(
                 {"detail": f"Only {product_variant.stock_quantity} items in stock."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        add_to_cart(request.user, product_variant, quantity)
 
-        if cart_item:
-            cart_item.quantity = new_quantity
+        cart_item, created = ShoppingCartItem.objects.get_or_create(
+            user=request.user,
+            product=product_variant,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
             cart_item.save()
-        else:
-            cart_item = cart.add_product(product_variant, quantity)
 
         response_serializer = ShoppingCartItemSerializer(cart_item)
         return Response(
@@ -83,9 +81,8 @@ class AddToCartAPIView(CreateAPIView):
             },
             status=status.HTTP_201_CREATED
         )
-    
-    
 
+        
 
 __all__ = [
     "AddToCartAPIView"

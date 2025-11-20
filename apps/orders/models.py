@@ -7,59 +7,16 @@ from decimal import Decimal
 
 from .utils import generate_order_number
 from apps.common.models import BaseModel
-
-
-class ShoppingCart(BaseModel):
-    user = models.OneToOneField("accounts.CustomUser",
-                             on_delete=models.CASCADE,
-                             related_name="cart",
-                             verbose_name=_("User Shopping cart"))
-    
-    @property
-    def total_price(self):
-        return sum((item.subtotal for item in self.items.all()), Decimal("0.00"))
-    
-    @property
-    def item_quantities(self):
-        """Dict of products and their quantities in the cart"""
-        return {item.product.name: item.quantity for item in self.items.all()}
-    
-    @property
-    def is_empty(self):
-        """Check if cart has no items"""
-        return not self.items.exists()
-    
-    def clear(self):
-        """Remove all items from cart"""
-        self.items.all().delete()
-    
-    def add_product(self, product, quantity=1):
-        """Add a product to cart or update quantity if already exists"""
-        cart_item, created = self.items.get_or_create(
-            product=product,
-            defaults={'quantity': quantity}
-        )
-        if not created:
-            cart_item.quantity += quantity
-            cart_item.save()
-        return cart_item
-
-    def __str__(self):
-        return f"Shopping Cart of {self.user.username}" 
-    
-    class Meta:
-        verbose_name = _("Shopping Cart")
-        verbose_name_plural = _("Shopping Carts")
    
 
 class ShoppingCartItem(BaseModel):
-    cart = models.ForeignKey(ShoppingCart,
+    user = models.ForeignKey("accounts.CustomUser",
                              on_delete=models.CASCADE,
-                             related_name="items",
-                             verbose_name=_("Shopping cart"))
+                             related_name="cart_items",
+                             verbose_name=_("User"))
     product = models.ForeignKey("products.ProductVariant",
                                  on_delete=models.CASCADE,
-                                 related_name="cart_items",
+                                 related_name="cart_products",
                                  verbose_name=_("Shopping cart items"))
     quantity = models.PositiveIntegerField(default=1, verbose_name=_("Product quantity"))
 
@@ -82,7 +39,7 @@ class ShoppingCartItem(BaseModel):
         verbose_name_plural = _("Shopping Cart Items")
         ordering = ['-created_at']
         constraints = (
-            models.UniqueConstraint(fields=["cart", "product"], name="unique_cart_product"),
+            models.UniqueConstraint(fields=["user", "product"], name="unique_user_product"),
         )
 
 
@@ -101,53 +58,42 @@ class Order(BaseModel):
         PICKUP = 'PICKUP', _("Store Pickup")
 
     user = models.ForeignKey("accounts.CustomUser",
-                             on_delete=models.CASCADE,
-                             related_name="orders",
-                             verbose_name=_("Order User"))
-    order_number = models.CharField(max_length=20, 
+                            on_delete=models.CASCADE,
+                            related_name="orders",
+                            verbose_name=_("Order User"))
+    order_number = models.CharField(max_length=50, 
                                     unique=True, 
                                     verbose_name=_("Order Number"))
-    cart = models.ForeignKey(ShoppingCart,
-                            on_delete=models.CASCADE,
-                            related_name="order_cart",
-                            verbose_name=_("Order cart"))
-    total = models.DecimalField(max_digits=10,
+    total_price = models.DecimalField(max_digits=10,
                                 decimal_places=2,  
-                                verbose_name=_("Order Total"),
+                                verbose_name=_("Order's Total Price"),
                                 default=Decimal('0.00'))
     status = models.CharField(max_length=20,
-                              choices=OrderStatus.choices,  
-                              default=OrderStatus.PENDING,
-                              verbose_name=_("Order Status"))
+                            choices=OrderStatus.choices,  
+                            default=OrderStatus.PENDING,
+                            verbose_name=_("Order Status"))
     shipping_type = models.CharField(max_length=20,
-                                      choices=ShippingType.choices,
-                                      default=ShippingType.FREE,
-                                      verbose_name=_("Shipping Type"))
+                                    choices=ShippingType.choices,
+                                    default=ShippingType.FREE,
+                                    verbose_name=_("Shipping Type"))
     shipping_cost = models.DecimalField(max_digits=8,
                                         decimal_places=2,
                                         verbose_name=_("Shipping Cost"),
                                         default=Decimal('0.00'))
     
     def save(self, *args, **kwargs):
-        if self.cart:
-            self.total = self.cart.total_price
-        elif hasattr(self.user, 'cart') and self.user.cart:
-            self.total = self.user.cart.total_price
-
         if not self.order_number:
-            max_attempts = 5
-            for attempt in range(max_attempts):
-                order_number = generate_order_number()
-                self.order_number = f"ORD{order_number}"
-                try:
-                    with transaction.atomic():
-                        super().save(*args, **kwargs)
-                    return
-                except IntegrityError:
-                    if attempt == max_attempts-1:
-                        raise 
+            self.order_number = f"ORD{generate_order_number()}"
+        super().save(*args, **kwargs)
+
+    def calculate_total(self):
+        items_total_price = sum(item.get_subtotal() for item in self.items.all())
+
+        if self.shipping_type != self.ShippingType.FREE:
+            self.total_price = items_total_price + self.shipping_cost
         else:
-            super().save(*args, **kwargs)
+            self.total_price = items_total_price
+        return self.total_price
     
     def __str__(self):
         return f"Order {self.order_number} by {self.user.username}"
@@ -156,6 +102,36 @@ class Order(BaseModel):
         verbose_name = _("Order")
         verbose_name_plural = _("Orders")
         ordering = ['-created_at']
+
+
+class OrderItem(BaseModel):
+    order = models.ForeignKey(Order,
+                              on_delete=models.CASCADE,
+                              related_name="items",
+                              verbose_name=_("Order"))
+    product = models.ForeignKey("products.ProductVariant",
+                                on_delete=models.CASCADE,
+                                related_name="order_items",
+                                verbose_name=_("ProductVariant"))
+    quantity = models.PositiveIntegerField(default=1, verbose_name=_("Product Quantity"))
+    price = models.DecimalField(max_digits=10,
+                                decimal_places=2,
+                                verbose_name=_("Product Price"))
+    
+    def get_subtotal(self):
+        return self.price * self.quantity
+    
+    def __str__(self):
+        return f"{self.quantity}x {self.product} in Order {self.order.order_number}"
+    
+    class Meta:
+        verbose_name = _("OrderItem")
+        verbose_name_plural = ("OrderItems")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["order", "product"], name="unique_product_order"
+            )
+        ]
 
 
 class OrderDetail(BaseModel):
