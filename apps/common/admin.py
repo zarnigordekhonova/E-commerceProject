@@ -8,13 +8,13 @@ from .models import City, Country, Designer
 class CountryAdmin(admin.ModelAdmin):
     """Admin configuration for Country model"""
     
-    list_display = ['country_name', 'code', 'created_at', 'updated_at']
+    list_display = ['id', 'name', 'code', 'created_at', 'updated_at']
     list_filter = ['created_at']
-    search_fields = ['country_name', 'code']
-    ordering = ['country_name']
+    search_fields = ['name', 'code']
+    ordering = ['name']
     
     fieldsets = (
-        (_('Country Details'), {'fields': ('country_name', 'code')}),
+        (_('Country Details'), {'fields': ('name', 'code')}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     
@@ -25,13 +25,13 @@ class CountryAdmin(admin.ModelAdmin):
 class CityAdmin(admin.ModelAdmin):
     """Admin configuration for City model"""
     
-    list_display = ['city_name', 'country', 'created_at', 'updated_at']
+    list_display = ['id', 'name', 'country', 'created_at', 'updated_at']
     list_filter = ['country', 'created_at']
-    search_fields = ['city_name', 'country__country_name', 'country__code']
-    ordering = ['city_name']
+    search_fields = ['name', 'country__country_name', 'country__code']
+    ordering = ['name']
     
     fieldsets = (
-        (_('City Details'), {'fields': ('city_name', 'country')}),
+        (_('City Details'), {'fields': ('name', 'country')}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     

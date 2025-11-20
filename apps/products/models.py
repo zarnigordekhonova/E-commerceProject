@@ -80,13 +80,9 @@ class ProductVariant(BaseModel):
                                 on_delete=models.CASCADE,
                                 related_name='variants',
                                 verbose_name=_("Product variant"))
-    color = models.CharField(max_length=32,
-                             verbose_name=_("Product color"))
     additional_info = models.TextField(null=True,
                                        blank=True,
                                        verbose_name=_("Additional information"))
-    measurement = models.CharField(max_length=64,
-                                   verbose_name=_("Measurement"))
     sku_code = models.CharField(max_length=64,
                                 verbose_name=_("SKU code"),
                                 unique=True)
@@ -103,7 +99,7 @@ class ProductVariant(BaseModel):
                                             default=0)
     
     def __str__(self):
-        return f"{self.product.name} - {self.color} - {self.measurement}"
+        return f"{self.product.name}"
     
     def save(self, *args, **kwargs):
         if self.discount_price and self.discount_percentage > 0:
@@ -116,8 +112,62 @@ class ProductVariant(BaseModel):
         verbose_name = _("Product Variant")
         verbose_name_plural = _("Product Variants")
         indexes = [
-            models.Index(fields=["color", "sku_code", "price"])
+            models.Index(fields=["sku_code", "price"])
             ]
+        
+
+class Option(BaseModel):
+    name = models.CharField(max_length=32,
+                            verbose_name=_("Option name")) 
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _("Option")
+        verbose_name_plural = _("Options") 
+
+
+class OptionValue(BaseModel):
+    option = models.ForeignKey(Option,
+                               on_delete=models.CASCADE,
+                               verbose_name=_("Option's value"))
+    value = models.CharField(max_length=32,
+                             verbose_name=_("Value"))
+    
+    def __str__(self):
+        return self.value
+    
+    class Meta:
+        verbose_name = _("OptionValue")
+        verbose_name_plural = _("OptionValues")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["option", "value"], name="unique_option_value"
+            )
+        ]
+
+
+class ProductVariantOptionValue(BaseModel):
+    product_variant = models.ForeignKey(ProductVariant,
+                                        on_delete=models.CASCADE,
+                                        related_name="variant_options",
+                                        verbose_name=_("Product Variant"))
+    option_value = models.ForeignKey(OptionValue,
+                                     on_delete=models.CASCADE,
+                                     verbose_name=_("Product's Option and Value"))
+    
+    def __str__(self):
+        return f"{self.product_variant} - {self.option_value}"
+    
+    class Meta:
+        verbose_name = _("ProductVariantOptionValue")
+        verbose_name_plural = _("ProductVariantOptionValues")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product_variant", "option_value"], name="unique_product_variant_option_value"
+            )
+        ]
         
 
 class ProductRating(BaseModel):

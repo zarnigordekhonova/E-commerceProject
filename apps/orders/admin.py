@@ -2,85 +2,75 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from .models import ShoppingCart, ShoppingCartItem, Order, OrderDetail
-
-
-@admin.register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    """Admin configuration for ShoppingCart model"""
-    
-    list_display = ['id', 'user', 'total_price', 'item_count', 'is_empty', 'created_at', 'updated_at']
-    list_filter = ['created_at', 'updated_at']
-    search_fields = ['user__email', 'user__username', 'user__full_name']
-    ordering = ['-created_at']
-    
-    fieldsets = (
-        (_('Cart Details'), {'fields': ('user',)}),
-        (_('Cart Info'), {'fields': ('total_price', 'item_count', 'is_empty')}),
-        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
-    )
-    
-    readonly_fields = ['created_at', 'updated_at', 'total_price', 'item_count', 'is_empty']
-    
-    autocomplete_fields = ['user']
-    
-    actions = ['clear_carts']
-    
-    @admin.display(description='Total Items')
-    def item_count(self, obj):
-        """Display total number of items in cart"""
-        return obj.items.count()
-    
-    @admin.action(description='Clear selected carts')
-    def clear_carts(self, request, queryset):
-        count = 0
-        for cart in queryset:
-            cart.clear()
-            count += 1
-        self.message_user(request, f'{count} cart(s) cleared.')
+from .models import ShoppingCartItem, Order, OrderItem, OrderDetail
 
 
 @admin.register(ShoppingCartItem)
 class ShoppingCartItemAdmin(admin.ModelAdmin):
     """Admin configuration for ShoppingCartItem model"""
     
-    list_display = ['cart', 'product', 'quantity', 'subtotal', 'is_in_stock', 'created_at']
-    list_filter = ['created_at', 'cart']
-    search_fields = ['cart__user__email', 'cart__user__username', 'product__name']
+    list_display = ['id', 'user', 'product', 'quantity', 'subtotal', 'is_in_stock', 'created_at']
+    list_filter = ['created_at', 'user']
+    search_fields = ['user__email', 'user__username', 'product__product__name']
     ordering = ['-created_at']
     
     fieldsets = (
-        (_('Cart Item Details'), {'fields': ('cart', 'product', 'quantity')}),
+        (_('Cart Item Details'), {'fields': ('user', 'product', 'quantity')}),
         (_('Item Info'), {'fields': ('subtotal', 'is_in_stock')}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     
     readonly_fields = ['created_at', 'updated_at', 'subtotal', 'is_in_stock']
     
-    autocomplete_fields = ['cart', 'product']
+    autocomplete_fields = ['user', 'product']
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    """Admin configuration for OrderItem model"""
+    
+    list_display = ['order', 'product', 'quantity', 'price', 'get_subtotal', 'created_at']
+    list_filter = ['order', 'created_at']
+    search_fields = ['order__order_number', 'product__product__name']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        (_('Order Item Details'), {'fields': ('order', 'product', 'quantity', 'price')}),
+        (_('Item Info'), {'fields': ('get_subtotal',)}),
+        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at', 'get_subtotal']
+    
+    autocomplete_fields = ['order', 'product']
+    
+    @admin.display(description='Subtotal')
+    def get_subtotal(self, obj):
+        """Display subtotal for this order item"""
+        return obj.get_subtotal()
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     """Admin configuration for Order model"""
     
-    list_display = ['id', 'order_number', 'user', 'status_badge', 'shipping_type', 'total', 'shipping_cost', 'created_at']
-    list_filter = ['status', 'shipping_type', 'created_at', 'updated_at']
+    list_display = ['id', 'order_number', 'user', 'status_badge', 'shipping_type', 'total_price', 'shipping_cost', 'created_at']
+    list_filter = ['status', 'shipping_type', 'created_at']
     search_fields = ['order_number', 'user__email', 'user__username']
     ordering = ['-created_at']
     
     fieldsets = (
-        (_('Order Details'), {'fields': ('user', 'order_number', 'cart')}),
-        (_('Pricing'), {'fields': ('total', 'shipping_cost')}),
+        (_('Order Details'), {'fields': ('user', 'order_number')}),
+        (_('Pricing'), {'fields': ('total_price', 'shipping_cost')}),
         (_('Status & Shipping'), {'fields': ('status', 'shipping_type')}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     
-    readonly_fields = ['created_at', 'updated_at', 'order_number', 'total']
+    readonly_fields = ['created_at', 'updated_at', 'order_number', 'total_price']
     
-    autocomplete_fields = ['user', 'cart']
+    autocomplete_fields = ['user']
     
-    actions = ['mark_as_processing', 'mark_as_shipping', 'mark_as_delivered', 'mark_as_canceled']
+    actions = ['mark_as_processing', 'mark_as_shipping', 'mark_as_delivered', 'mark_as_canceled', 'mark_as_refunded']
     
     @admin.display(description='Status', ordering='status')
     def status_badge(self, obj):
@@ -119,6 +109,11 @@ class OrderAdmin(admin.ModelAdmin):
     def mark_as_canceled(self, request, queryset):
         updated = queryset.update(status=Order.OrderStatus.CANCELED)
         self.message_user(request, f'{updated} order(s) marked as Canceled.')
+    
+    @admin.action(description='Mark as Refunded')
+    def mark_as_refunded(self, request, queryset):
+        updated = queryset.update(status=Order.OrderStatus.REFUNDED)
+        self.message_user(request, f'{updated} order(s) marked as Refunded.')
 
 
 @admin.register(OrderDetail)
@@ -146,5 +141,3 @@ class OrderDetailAdmin(admin.ModelAdmin):
     def full_name(self, obj):
         """Display full name"""
         return f"{obj.first_name} {obj.last_name}"
-
-

@@ -7,8 +7,12 @@ from .models import (Category,
                      ProductComment, 
                      ProductImage, 
                      ProductRating, 
-                     ProductVariant, 
+                     ProductVariant,
+                     Option,
+                     OptionValue,
+                     ProductVariantOptionValue,
                      UserProductFavorite)
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -54,7 +58,7 @@ class ProductAdmin(admin.ModelAdmin):
     
     prepopulated_fields = {'slug': ('name',)}
     
-    autocomplete_fields = ['category']
+    autocomplete_fields = ['category', 'designed_by']
     
     actions = ['mark_as_new', 'mark_as_old']
     
@@ -73,14 +77,14 @@ class ProductAdmin(admin.ModelAdmin):
 class ProductVariantAdmin(admin.ModelAdmin):
     """Admin configuration for ProductVariant model"""
     
-    list_display = ['id', 'product', 'color', 'measurement', 'sku_code', 'price', 'discount_percentage', 'stock_quantity', 'created_at']
-    list_filter = ['product__category', 'color', 'stock_quantity', 'created_at']
-    search_fields = ['product__name', 'color', 'sku_code', 'measurement']
+    list_display = ['id', 'product', 'sku_code', 'price', 'discount_percentage', 'stock_quantity', 'created_at']
+    list_filter = ['product__category', 'stock_quantity', 'created_at']
+    search_fields = ['product__name', 'sku_code']
     ordering = ['-created_at']
     
     fieldsets = (
         (_('Product'), {'fields': ('product',)}),
-        (_('Variant Details'), {'fields': ('color', 'measurement', 'sku_code', 'additional_info')}),
+        (_('Variant Details'), {'fields': ('sku_code', 'additional_info')}),
         (_('Stock'), {'fields': ('stock_quantity',)}),
         (_('Pricing'), {'fields': ('price', 'discount_percentage', 'discount_price')}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
@@ -97,12 +101,12 @@ class ProductVariantAdmin(admin.ModelAdmin):
         updated = queryset.update(stock_quantity=0)
         self.message_user(request, f'{updated} variant(s) marked as out of stock.')
     
-    @admin.action(description='Apply 10%% discount')  # ← Use %% to escape
+    @admin.action(description='Apply 10%% discount')
     def apply_10_percent_discount(self, request, queryset):
         updated = queryset.update(discount_percentage=10)
         self.message_user(request, f'{updated} variant(s) now have 10% discount.')
 
-    @admin.action(description='Apply 20%% discount')  # ← Use %% to escape
+    @admin.action(description='Apply 20%% discount')
     def apply_20_percent_discount(self, request, queryset):
         updated = queryset.update(discount_percentage=20)
         self.message_user(request, f'{updated} variant(s) now have 20% discount.')
@@ -111,7 +115,62 @@ class ProductVariantAdmin(admin.ModelAdmin):
     def remove_discount(self, request, queryset):
         updated = queryset.update(discount_percentage=0, discount_price=0)
         self.message_user(request, f'Discount removed from {updated} variant(s).')
-        
+
+
+@admin.register(Option)
+class OptionAdmin(admin.ModelAdmin):
+    """Admin configuration for Option model"""
+    
+    list_display = ['id', 'name', 'created_at']
+    list_filter = ['created_at']
+    search_fields = ['name']
+    ordering = ['name']
+    
+    fieldsets = (
+        (_('Option Details'), {'fields': ('name',)}),
+        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(OptionValue)
+class OptionValueAdmin(admin.ModelAdmin):
+    """Admin configuration for OptionValue model"""
+    
+    list_display = ['id', 'option', 'value', 'created_at']
+    list_filter = ['option', 'created_at']
+    search_fields = ['option__name', 'value']
+    ordering = ['option', 'value']
+    
+    fieldsets = (
+        (_('OptionValue Details'), {'fields': ('option', 'value')}),
+        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+    
+    autocomplete_fields = ['option']
+
+
+@admin.register(ProductVariantOptionValue)
+class ProductVariantOptionValueAdmin(admin.ModelAdmin):
+    """Admin configuration for ProductVariantOptionValue model"""
+    
+    list_display = ['id', 'product_variant', 'option_value', 'created_at']
+    list_filter = ['product_variant__product__category', 'created_at']
+    search_fields = ['product_variant__sku_code', 'option_value__value']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        (_('Details'), {'fields': ('product_variant', 'option_value')}),
+        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+    
+    autocomplete_fields = ['product_variant', 'option_value']
+
 
 @admin.register(ProductRating)
 class ProductRatingAdmin(admin.ModelAdmin):
@@ -154,7 +213,7 @@ class ProductCommentAdmin(admin.ModelAdmin):
     def comment_preview(self, obj):
         """Display comment preview"""
         return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
-    
+
 
 @admin.register(UserProductFavorite)
 class UserProductFavoriteAdmin(admin.ModelAdmin):

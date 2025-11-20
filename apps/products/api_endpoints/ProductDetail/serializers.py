@@ -1,22 +1,39 @@
 from rest_framework import serializers
 
-from apps.products.models import Product, ProductVariant, ProductComment, ProductRating
+from apps.products.models import (Product, 
+                                  ProductVariant, 
+                                  ProductComment, 
+                                  ProductRating,
+                                  ProductVariantOptionValue)
 from apps.products.api_endpoints.ProductList.serializers import ProductImageSerializer
 
 
+class OptionValueSerializer(serializers.Serializer):
+    option = serializers.CharField(source='option_value.option.name', read_only=True)
+    value = serializers.CharField(source='option_value.value', read_only=True)
+
+
 class ProductVariantSerializer(serializers.ModelSerializer):
+    options = serializers.SerializerMethodField()
+    images = ProductImageSerializer(many=True, read_only=True)
+    
     class Meta:
         model = ProductVariant
         fields = (
             "id",
-            "color",
-            "additional_info",
-            "measurement",
             "sku_code",
             "price",
             "discount_price",
-            "discount_percentage"
+            "discount_percentage",
+            "stock_quantity",
+            "additional_info",
+            "options",
+            "images"
         )
+
+    def get_options(self, obj):
+        variant_options = obj.variant_options.all()
+        return OptionValueSerializer(variant_options, many=True).data
 
 
 class ProductCommentSerializer(serializers.ModelSerializer):
@@ -46,17 +63,14 @@ class ProductCommentSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.category_name", read_only=True)
-    images = serializers.SerializerMethodField()
     variants = ProductVariantSerializer(many=True, read_only=True)
     reviews = ProductCommentSerializer(source="product_comment", many=True, read_only=True)
     reviews_number = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Product
         fields = (
             "id",
-            "images",
             "reviews_number",
             "name",
             "description",
@@ -70,12 +84,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_reviews_number(self, obj):
         return obj.product_comment.count()
     
-    def get_images(self, obj):
-        images = []
-        variants = obj.variants.all()
-        if variants:
-            for variant in variants:
-                images.extend(variant.images.all())
-            return ProductImageSerializer(images, many=True).data
-        return []
+    
+    
+
 

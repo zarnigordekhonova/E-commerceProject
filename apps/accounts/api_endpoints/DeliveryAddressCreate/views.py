@@ -23,23 +23,14 @@ class DeliveryAddressCreateAPIView(CreateAPIView):
         "is_default": "True/False"
     }
 
-    Response body example(201 Created):
-    {
-        "detail": "Delivery address has been added successfully."
-    }
+    Response code: 201, Created
     """
     serializer_class = DeliveryAddressSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-
-        return Response(
-            {"detail" : "Delivery address has been added successfully."},
-            status=status.HTTP_201_CREATED
-        )
+    # Fixed, using perform_create method instead of create method
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 __all__ = [

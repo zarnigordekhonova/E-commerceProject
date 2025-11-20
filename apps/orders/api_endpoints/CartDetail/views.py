@@ -1,11 +1,14 @@
+from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
-from apps.orders.models import ShoppingCart
-from apps.orders.api_endpoints.AddToCart.serializers import ShoppingCartSerializer
+from apps.orders.models import ShoppingCartItem
+from apps.orders.api_endpoints.AddToCart.serializers import ShoppingCartItemSerializer
 
 
-class CartDetailAPIView(RetrieveAPIView):
+class CartDetailAPIView(APIView):
     """
     Generic APIView endpoint for getting cart data.
     GET api/orders/cart/detail/
@@ -39,12 +42,30 @@ class CartDetailAPIView(RetrieveAPIView):
         "is_empty": false
     }
     """
-    serializer_class = ShoppingCartSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        cart, _ = ShoppingCart.objects.get_or_create(user=self.request.user)
-        return cart
+    def get(self, request):
+        cart_items = ShoppingCartItem.objects.filter(user=request.user)
+
+        if not cart_items:
+            return Response(
+                {"items": [],
+                 "total_price": "0.00",
+                 "item_count": 0},
+                status=status.HTTP_200_OK
+            )
+        
+        serializer = ShoppingCartItemSerializer(cart_items, many=True)
+        total_price = sum(item.subtotal for item in cart_items)
+
+        return Response(
+            {
+                "items": serializer.data,
+                "total_price": str(total_price),
+                "item_count": cart_items.count()
+            },
+            status=status.HTTP_200_OK
+        )
     
 
 __all__ = [

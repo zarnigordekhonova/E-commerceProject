@@ -12,7 +12,7 @@ class OrderHistorySerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "order_number",
-            "total",
+            "total_price",
             "status",
             "shipping_type",
             "shipping_cost",
