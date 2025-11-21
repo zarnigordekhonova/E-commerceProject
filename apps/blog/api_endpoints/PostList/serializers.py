@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.blog.models import Post, PostImage
+from apps.products.models import Product
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -10,7 +11,7 @@ class PostImageSerializer(serializers.ModelSerializer):
 
 
 class PostListSerializer(serializers.ModelSerializer):
-    images = PostImageSerializer(source='posts', many=True, read_only=True)
+    images = PostImageSerializer(many=True, read_only=True)
     
     class Meta:
         model = Post
@@ -20,5 +21,5 @@ class PostListSerializer(serializers.ModelSerializer):
             "short_description",
             "images", # post related images
             "created_at",
-            "updated_at"
+            "updated_at",
         )
