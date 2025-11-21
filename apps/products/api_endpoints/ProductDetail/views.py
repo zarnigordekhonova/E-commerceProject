@@ -71,5 +71,3 @@ class ProductDetailAPIView(RetrieveAPIView):
 __all__ = [
     "ProductDetailAPIView"
 ]
-        
-

@@ -25,6 +25,10 @@ class Post(BaseModel):
                                    null=True,
                                    blank=True,
                                    related_name="main_post_image")
+    products = models.ManyToManyField("products.Product",
+                                      related_name="posts",
+                                      verbose_name=_("Related Products"),
+                                      blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
