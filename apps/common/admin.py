@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import City, Country, Designer
+from .models import City, Country, Designer, NewsLetter
 
 
 @admin.register(Country)
@@ -51,6 +51,23 @@ class DesignerAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (_('Designer Details'), {'fields': ('full_name', 'designer_image')}),
+        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(NewsLetter)
+class NewsLetterAdmin(admin.ModelAdmin):
+    """Admin configuration for NewsLetter model"""
+    
+    list_display = ['id', 'email', 'created_at', 'updated_at']
+    list_filter = ['created_at']
+    search_fields = ['email']
+    ordering = ['id']
+    
+    fieldsets = (
+        (_('NewsLetter Details'), {'fields': ('email', )}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     
