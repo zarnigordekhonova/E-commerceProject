@@ -3,6 +3,7 @@ from django.urls import path
 from apps.products.api_endpoints import (
     CategoryListAPIView,
     ProductListByCategoryAPIView,
+    ProductCreateAPIView,
     ProductsListAPIView,
     ProductDetailAPIView,
     ProductCommentCreateAPIView,
@@ -26,4 +27,5 @@ urlpatterns = [
     path("delete/<int:pk>/rating/", ProductRatingDeleteAPIView.as_view(), name="rating-delete"),
     path("wishlist/<int:product_variant_id>/add/", AddToWishlistAPIView.as_view(), name="add-to-wishlist"),
     path("wishlist/", FavoriteListAPIView.as_view(), name="wishlist-list"),
+    path("add/", ProductCreateAPIView.as_view(), name="product-add"),
 ]

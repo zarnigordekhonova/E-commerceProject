@@ -10,7 +10,6 @@ from rest_framework.permissions import AllowAny
 
 CustomUser = get_user_model()
 
-
 class ActivationAPIView(APIView):
     """
     APIView endpoint for activating user account by activation link.

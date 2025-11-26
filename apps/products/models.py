@@ -36,7 +36,8 @@ class Product(BaseModel):
                             verbose_name=_("Product name"))
     slug = models.SlugField(max_length=128,
                             verbose_name=_("Slug"),
-                            unique=True)
+                            unique=True,
+                            blank=True)
     description = models.TextField(verbose_name=_("Description"))
     rating = models.FloatField(verbose_name=_("Rating"), 
                                default=0)
@@ -52,9 +53,11 @@ class Product(BaseModel):
                                  on_delete=models.CASCADE, 
                                  related_name='products',
                                  verbose_name=_("Category"))
+    show_with_posts = models.BooleanField(default=False,
+                                          verbose_name=_("Products with Posts"))
     
     def __str__(self):
-        return f"{self.name} - {self.designed_year}"
+        return f"{self.name} - {self.designed_year} - {self.show_with_posts}"
     
     def save(self, *args, **kwargs):
         if not self.slug:

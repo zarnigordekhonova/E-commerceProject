@@ -68,8 +68,9 @@ class OrderHistoryAPIView(ListAPIView):
     def get_queryset(self):
         return Order.objects.filter(
             user=self.request.user
-        ).prefetch_related(
-            "order_details"
+        ).select_related(
+            "country",
+            "city",
         ).order_by("-created_at")
     
 

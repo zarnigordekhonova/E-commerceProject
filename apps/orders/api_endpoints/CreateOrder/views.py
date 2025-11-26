@@ -50,14 +50,13 @@ class OrderCreateAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
 
-        order_detail = order.order_details.first()
         response_data = {
             "detail": "Order created successfully!",
             "order": {
                 "order_number": order.order_number,
                 "created_at": order.created_at,
                 "total": order.total_price,
-                "payment_method": order_detail.payment_method if order_detail else None,
+                "payment_method": order.payment_method,
                 "shipping_type": order.shipping_type,
                 "status": order.status
             }

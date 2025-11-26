@@ -2,8 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from .models import ShoppingCartItem, Order, OrderItem, OrderDetail
-
+from .models import ShoppingCartItem, Order, OrderItem
 
 @admin.register(ShoppingCartItem)
 class ShoppingCartItemAdmin(admin.ModelAdmin):
@@ -52,23 +51,30 @@ class OrderItemAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    """Admin configuration for Order model"""
+    """Admin configuration for merged Order model"""
     
-    list_display = ['id', 'order_number', 'user', 'status_badge', 'shipping_type', 'total_price', 'shipping_cost', 'created_at']
-    list_filter = ['status', 'shipping_type', 'created_at']
-    search_fields = ['order_number', 'user__email', 'user__username']
+    list_display = ['order_number', 'user', 'status_badge', 'first_name', 'email', 'shipping_type', 'total_price', 'payment_method', 'created_at']
+    list_filter = ['status', 'shipping_type', 'payment_method', 'created_at']
+    search_fields = ['order_number', 'user__email', 'user__username', 'email', 'phone_number']
     ordering = ['-created_at']
     
     fieldsets = (
-        (_('Order Details'), {'fields': ('user', 'order_number')}),
-        (_('Pricing'), {'fields': ('total_price', 'shipping_cost')}),
-        (_('Status & Shipping'), {'fields': ('status', 'shipping_type')}),
+        (_('Order Information'), {'fields': ('user', 'order_number', 'status')}),
+        
+        (_('Delivery Information'), {'fields': ('first_name', 'last_name', 'phone_number', 'email')}),
+        
+        (_('Address Information'), {'fields': ('country', 'city', 'state', 'street', 'zip_code')}),
+        
+        (_('Shipping & Pricing'), {'fields': ('shipping_type', 'shipping_cost', 'total_price')}),
+        
+        (_('Payment'), {'fields': ('payment_method',)}),
+        
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     
     readonly_fields = ['created_at', 'updated_at', 'order_number', 'total_price']
     
-    autocomplete_fields = ['user']
+    autocomplete_fields = ['user', 'country', 'city']
     
     actions = ['mark_as_processing', 'mark_as_shipping', 'mark_as_delivered', 'mark_as_canceled', 'mark_as_refunded']
     
@@ -114,30 +120,3 @@ class OrderAdmin(admin.ModelAdmin):
     def mark_as_refunded(self, request, queryset):
         updated = queryset.update(status=Order.OrderStatus.REFUNDED)
         self.message_user(request, f'{updated} order(s) marked as Refunded.')
-
-
-@admin.register(OrderDetail)
-class OrderDetailAdmin(admin.ModelAdmin):
-    """Admin configuration for OrderDetail model"""
-    
-    list_display = ['order', 'full_name', 'email', 'phone_number', 'country', 'city', 'payment_method', 'created_at']
-    list_filter = ['payment_method', 'country', 'city', 'created_at']
-    search_fields = ['order__order_number', 'first_name', 'last_name', 'email', 'phone_number', 'street']
-    ordering = ['-created_at']
-    
-    fieldsets = (
-        (_('Order'), {'fields': ('order',)}),
-        (_('Personal Information'), {'fields': ('first_name', 'last_name', 'email', 'phone_number')}),
-        (_('Address'), {'fields': ('country', 'city', 'state', 'street', 'zip_code')}),
-        (_('Payment'), {'fields': ('payment_method',)}),
-        (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
-    )
-    
-    readonly_fields = ['created_at', 'updated_at']
-    
-    autocomplete_fields = ['order', 'country', 'city']
-    
-    @admin.display(description='Full Name')
-    def full_name(self, obj):
-        """Display full name"""
-        return f"{obj.first_name} {obj.last_name}"

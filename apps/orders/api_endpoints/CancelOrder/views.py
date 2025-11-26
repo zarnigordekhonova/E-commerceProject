@@ -3,12 +3,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from apps.orders.models import Order, OrderDetail
+from apps.orders.models import Order
 
 
 class OrderCancelAPIView(APIView):
     """
-    Generic APIView endpoint for cancelling the order
+    APIView endpoint for cancelling the order
     POST api/orders/cancel/id/
 
     On Postman/Swagger, provide the Authorization Bearer token.
@@ -42,7 +42,10 @@ class OrderCancelAPIView(APIView):
             {"detail": "Order has been cancelled."},
             status=status.HTTP_200_OK
         )
-    __all__ = [
-        "OrderCancelAPIView"
-    ]
+    
+
+
+__all__ = [
+    "OrderCancelAPIView"
+]
 
