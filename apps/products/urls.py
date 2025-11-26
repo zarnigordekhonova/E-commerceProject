@@ -12,6 +12,9 @@ from apps.products.api_endpoints import (
     ProductRatingDeleteAPIView,
     AddToWishlistAPIView,
     FavoriteListAPIView,
+    AddProductVariantAPIView,
+    OptionCreateAPIView,
+    AddOptionValueAPIView,
 )
 
 app_name = "products"
@@ -28,4 +31,7 @@ urlpatterns = [
     path("wishlist/<int:product_variant_id>/add/", AddToWishlistAPIView.as_view(), name="add-to-wishlist"),
     path("wishlist/", FavoriteListAPIView.as_view(), name="wishlist-list"),
     path("add/", ProductCreateAPIView.as_view(), name="product-add"),
+    path("variant/add/", AddProductVariantAPIView.as_view(), name="product-variant-add"),
+    path("option/add/", OptionCreateAPIView.as_view(), name="option-add"),
+    path("option/value/add/", AddOptionValueAPIView.as_view(), name="option-value-add")
 ]

@@ -77,7 +77,7 @@ class ProductAdmin(admin.ModelAdmin):
 class ProductVariantAdmin(admin.ModelAdmin):
     """Admin configuration for ProductVariant model"""
     
-    list_display = ['id', 'product', 'sku_code', 'price', 'discount_percentage', 'stock_quantity', 'created_at']
+    list_display = ['id', 'product', 'sku_code', 'price', 'discount_percentage', 'discount_price', 'stock_quantity', 'created_at']
     list_filter = ['product__category', 'stock_quantity', 'created_at']
     search_fields = ['product__name', 'sku_code']
     ordering = ['-created_at']
@@ -86,7 +86,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
         (_('Product'), {'fields': ('product',)}),
         (_('Variant Details'), {'fields': ('sku_code', 'additional_info')}),
         (_('Stock'), {'fields': ('stock_quantity',)}),
-        (_('Pricing'), {'fields': ('price', 'discount_percentage', 'discount_price')}),
+        (_('Pricing'), {'fields': ('price', 'discount_percentage')}),
         (_('Timestamps'), {'fields': ('created_at', 'updated_at')}),
     )
     

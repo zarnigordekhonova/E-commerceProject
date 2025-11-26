@@ -10,7 +10,7 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "name",
-            "slug"
+            "slug",
             "description",
             "is_new",
             "rating",

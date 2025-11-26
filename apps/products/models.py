@@ -97,7 +97,7 @@ class ProductVariant(BaseModel):
     discount_price = models.DecimalField(max_digits=10,
                                          decimal_places=2,
                                          verbose_name=_("Discount price"),
-                                         default=Decimal('0.00'))
+                                         default=Decimal("0.00"))
     discount_percentage = models.FloatField(verbose_name=_("Discount percentage"),
                                             default=0)
     
@@ -105,7 +105,7 @@ class ProductVariant(BaseModel):
         return f"{self.product.name}"
     
     def save(self, *args, **kwargs):
-        if self.discount_price and self.discount_percentage > 0:
+        if self.discount_percentage > 0:
             discount_amount = self.price * (Decimal(self.discount_percentage) / 100)
             self.discount_price = self.price - discount_amount
             self.discount_price = self.discount_price.quantize(Decimal('0.01'))
@@ -122,6 +122,10 @@ class ProductVariant(BaseModel):
 class Option(BaseModel):
     name = models.CharField(max_length=32,
                             verbose_name=_("Option name")) 
+    
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        super().save(*args, *kwargs)
 
     def __str__(self):
         return self.name
@@ -129,6 +133,9 @@ class Option(BaseModel):
     class Meta:
         verbose_name = _("Option")
         verbose_name_plural = _("Options") 
+        constraints = [
+            models.UniqueConstraint(fields=['name'], name="unique_option_name")
+        ]
 
 
 class OptionValue(BaseModel):
