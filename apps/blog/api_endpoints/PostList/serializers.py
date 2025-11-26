@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
 from apps.blog.models import Post, PostImage
-from apps.products.models import Product
 
 
 class PostImageSerializer(serializers.ModelSerializer):

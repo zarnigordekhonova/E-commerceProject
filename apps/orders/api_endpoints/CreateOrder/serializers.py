@@ -2,14 +2,18 @@ from django.db import transaction
 
 from rest_framework import serializers
 
-from apps.orders.models import Order, OrderDetail, ShoppingCartItem, OrderItem
+from apps.orders.models import Order, ShoppingCartItem, OrderItem
 from apps.orders.utils import calculate_shipping_cost
 
 
-class OrderDetailSerializer(serializers.ModelSerializer):
+class OrderCreateSerializer(serializers.ModelSerializer):
+    shipping_type = serializers.ChoiceField(
+        choices=Order.ShippingType.choices
+    )
     class Meta:
-        model = OrderDetail
+        model = Order
         fields = (
+            "shipping_type",
             "first_name",
             "last_name",
             "phone_number",
@@ -22,18 +26,10 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "payment_method"
         )
 
-
-class OrderCreateSerializer(serializers.Serializer):
-    shipping_type = serializers.ChoiceField(
-        choices=Order.ShippingType.choices
-    )
-    order_detail = OrderDetailSerializer()
-
     def create(self, validated_data):
         user = self.context['request'].user
-        shipping_type = validated_data['shipping_type']
-        order_detail_data = validated_data['order_detail']
-
+        shipping_type = validated_data.pop('shipping_type')
+        
         cart_items = ShoppingCartItem.objects.filter(user=user)
 
         if not cart_items.exists():
@@ -54,7 +50,8 @@ class OrderCreateSerializer(serializers.Serializer):
                 shipping_type=shipping_type,
                 shipping_cost=shipping_cost,
                 total_price=total_price,
-                status = Order.OrderStatus.PENDING
+                status = Order.OrderStatus.PENDING,
+                **validated_data
             )
 
             for cart_item in cart_items:
@@ -64,11 +61,6 @@ class OrderCreateSerializer(serializers.Serializer):
                     quantity=cart_item.quantity,
                     price=cart_item.product.price
                 )
-
-            order_detail = OrderDetail.objects.create(
-                order=order,
-                **order_detail_data
-            )
 
             cart_items.delete()
             print("CART HAS BEEN CLEARED")

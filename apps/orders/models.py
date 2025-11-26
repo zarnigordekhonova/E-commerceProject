@@ -43,6 +43,7 @@ class ShoppingCartItem(BaseModel):
         )
 
 
+# Merged with OrderDetail model
 class Order(BaseModel):
     class OrderStatus(models.TextChoices):
         PENDING = 'PENDING', _("Pending")
@@ -57,6 +58,13 @@ class Order(BaseModel):
         EXPRESS = 'EXPRESS', _("Express Shipping")
         PICKUP = 'PICKUP', _("Store Pickup")
 
+    class PaymentMethod(models.TextChoices):
+        CREDIT_CARD = 'CREDIT_CARD', _("Credit Card")
+        PAYPAL = 'PAYPAL', _("PayPal")
+        CASH_ON_DELIVERY = 'CASH_ON_DELIVERY', _("Cash on Delivery")
+
+#   ============ ORDER DETAILS ==============
+
     user = models.ForeignKey("accounts.CustomUser",
                             on_delete=models.CASCADE,
                             related_name="orders",
@@ -64,14 +72,13 @@ class Order(BaseModel):
     order_number = models.CharField(max_length=50, 
                                     unique=True, 
                                     verbose_name=_("Order Number"))
+    
+#   ============ PRICING and SHIPPING ============
+
     total_price = models.DecimalField(max_digits=10,
                                 decimal_places=2,  
                                 verbose_name=_("Order's Total Price"),
                                 default=Decimal('0.00'))
-    status = models.CharField(max_length=20,
-                            choices=OrderStatus.choices,  
-                            default=OrderStatus.PENDING,
-                            verbose_name=_("Order Status"))
     shipping_type = models.CharField(max_length=20,
                                     choices=ShippingType.choices,
                                     default=ShippingType.FREE,
@@ -80,6 +87,49 @@ class Order(BaseModel):
                                         decimal_places=2,
                                         verbose_name=_("Shipping Cost"),
                                         default=Decimal('0.00'))
+    
+#   ============ ORDER STATUS ================
+
+    status = models.CharField(max_length=20,
+                            choices=OrderStatus.choices,  
+                            default=OrderStatus.PENDING,
+                            verbose_name=_("Order Status"))
+    
+#   ============ USER DETAILS =============
+
+    first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
+    last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
+    phone_number = models.CharField(
+        max_length=50,  
+        validators=[
+            RegexValidator(
+                regex=r"^\+998\d{9}$",
+            )
+        ],
+        verbose_name=_("Phone number"))
+    email = models.EmailField(verbose_name=_("Email Address"))
+
+#   ============ ADDRESS DETAILS ============
+
+    country = models.ForeignKey("common.Country",
+                                on_delete=models.CASCADE,
+                                verbose_name=_("Country"))
+    city = models.ForeignKey("common.City",
+                             on_delete=models.CASCADE,
+                             verbose_name=_("City"))
+    state = models.CharField(max_length=100, 
+                             null=True,
+                             blank=True,
+                             verbose_name=_("State/Province"))
+    street = models.CharField(max_length=255, verbose_name=_("Street Address"))
+    zip_code = models.CharField(max_length=20, verbose_name=_("Postal Code"))
+
+#   ============ PAYMENT METHOD =============
+
+    payment_method = models.CharField(max_length=50, 
+                                      choices=PaymentMethod.choices,
+                                      default=PaymentMethod.PAYPAL,
+                                      verbose_name=_("Payment Method"))
     
     def save(self, *args, **kwargs):
         if not self.order_number:
@@ -133,52 +183,3 @@ class OrderItem(BaseModel):
             )
         ]
 
-
-class OrderDetail(BaseModel):
-
-    class PaymentMethod(models.TextChoices):
-        CREDIT_CARD = 'CREDIT_CARD', _("Credit Card")
-        PAYPAL = 'PAYPAL', _("PayPal")
-        CASH_ON_DELIVERY = 'CASH_ON_DELIVERY', _("Cash on Delivery")
-
-    order =  models.ForeignKey(Order,
-                               on_delete=models.CASCADE,
-                               related_name="order_details",
-                               verbose_name=_("Order"))
-    first_name = models.CharField(max_length=50, verbose_name=_("First Name"))
-    last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
-    phone_number = models.CharField(
-        max_length=50,  
-        validators=[
-            RegexValidator(
-                regex=r"^\+998\d{9}$",
-            )
-        ],
-        verbose_name=_("Phone number"))
-    email = models.EmailField(verbose_name=_("Email Address"))
-    country = models.ForeignKey("common.Country",
-                                on_delete=models.CASCADE,
-                                verbose_name=_("Country"))
-    city = models.ForeignKey("common.City",
-                             on_delete=models.CASCADE,
-                             verbose_name=_("City"))
-    state = models.CharField(max_length=100, 
-                             null=True,
-                             blank=True,
-                             verbose_name=_("State/Province"))
-    street = models.CharField(max_length=255, verbose_name=_("Street Address"))
-    zip_code = models.CharField(max_length=20, verbose_name=_("Postal Code"))
-    payment_method = models.CharField(max_length=50, 
-                                      choices=PaymentMethod.choices,
-                                      default=PaymentMethod.PAYPAL,
-                                      verbose_name=_("Payment Method"))
-    
-    def __str__(self):
-        return f"Order Detail for {self.order.order_number}"
-    
-    class Meta:
-        verbose_name = _("Order Detail")
-        verbose_name_plural = _("Order Details")
-    
-    
-   

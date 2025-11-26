@@ -1,5 +1,6 @@
 from .CategoryList import * # noqa
 from .CategoryProductList import * # noqa
+from .ProductAdd import * # noqa
 from .ProductList import * # noqa
 from .ProductDetail import * # noqa
 from .CommentCreate import * # noqa
