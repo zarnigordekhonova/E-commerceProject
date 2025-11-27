@@ -12,39 +12,53 @@ class ProductDetailAPIView(RetrieveAPIView):
     Generic APIView endpoint for retrieving a single product.
     GET api/products/id/detail/
 
-    On Postman/Swagger, provide the Authorization Bearer token.
-
     Response body example(200 OK):
     {
-    "id": 3,
-    "images": [],
-    "reviews_number": 1,
-    "name": "kitchen table",
-    "description": "description",
-    "rating": 0,
-    "is_new": true,
-    "category": "Kitchen furniture",
-    "variants": [
-        {
-        "id": 4,
-        "color": "yellow",
-        "additional_info": "",
-        "measurement": "4x4",
-        "sku_code": "098765",
-        "price": "40.00",
-        "discount_price": "0.00",
-        "discount_percentage": 0
-        }
-    ],
-    "reviews": [
-        {
         "id": 1,
-        "user": "Ramona Wilson",
-        "comment": "I like this product.",
-        "rating": null,
-        "created_at": "2025-11-14 05:30:57"
-        }
-    ]
+        "reviews_number": 0,
+        "name": "kitchenware",
+        "description": "kitchenware furniture",
+        "rating": 0,
+        "is_new": true,
+        "category": {
+            "id": 1,
+            "category_name": "Kitchen furniture"
+        },
+        "variants": [
+            {
+            "id": 8,
+            "sku_code": "342",
+            "price": "10000.00",
+            "discount_price": "9000.00",
+            "discount_percentage": 10,
+            "stock_quantity": 3,
+            "additional_info": "additional_info",
+            "options": [
+                {
+                "option": "size",
+                "value": "5x5"
+                }
+            ],
+            "images": []
+            },
+            {
+            "id": 9,
+            "sku_code": "5465",
+            "price": "10000.00",
+            "discount_price": "9000.00",
+            "discount_percentage": 10,
+            "stock_quantity": 3,
+            "additional_info": "additional_info",
+            "options": [
+                {
+                "option": "color",
+                "value": "sky blue"
+                }
+            ],
+            "images": []
+            }
+        ]
+    }
     """
     serializer_class = ProductDetailSerializer
     permission_classes = [AllowAny, ]
@@ -58,10 +72,6 @@ class ProductDetailAPIView(RetrieveAPIView):
                     "images",
                     "variant_options",
                 )
-            ),
-            Prefetch(
-                "product_comment",
-                queryset=ProductComment.objects.select_related("user")
             ),
             "product_rating"
         ).select_related("category")
