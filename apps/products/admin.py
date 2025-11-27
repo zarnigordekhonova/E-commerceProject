@@ -37,8 +37,8 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     """Admin configuration for Product model"""
     
-    list_display = ['id', 'name', 'category', 'rating', 'is_new', 'designed_by', 'designed_year', 'created_at']
-    list_filter = ['category', 'is_new', 'rating', 'designed_year', 'created_at']
+    list_display = ['id', 'name', 'category', 'rating', 'is_new', 'show_with_posts', 'designed_by', 'designed_year', 'created_at']
+    list_filter = ['category', 'is_new', 'rating', 'show_with_posts', 'designed_year', 'created_at']
     search_fields = ['name', 'slug', 'description']
     ordering = ['name']
     
@@ -47,7 +47,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'slug', 'category', 'description')
         }),
         (_('Product Info'), {
-            'fields': ('rating', 'is_new', 'designed_by')
+            'fields': ('rating', 'is_new', 'designed_by', 'show_with_posts')
         }),
         (_('Timestamps'), {
             'fields': ('designed_year', 'created_at', 'updated_at')

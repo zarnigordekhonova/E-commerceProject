@@ -62,9 +62,8 @@ class ProductCommentSerializer(serializers.ModelSerializer):
         
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    category = serializers.CharField(source="category.category_name", read_only=True)
+    category = serializers.SerializerMethodField()
     variants = ProductVariantSerializer(many=True, read_only=True)
-    reviews = ProductCommentSerializer(source="product_comment", many=True, read_only=True)
     reviews_number = serializers.SerializerMethodField()
 
     class Meta:
@@ -78,11 +77,17 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "is_new",
             "category",
             "variants",
-            "reviews"
         )
 
     def get_reviews_number(self, obj):
         return obj.product_comment.count()
+    
+    # fixed
+    def get_category(self, obj):
+        return {
+            "id" : obj.category.id,
+            "category_name": obj.category.category_name
+        }
     
     
     
