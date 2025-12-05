@@ -2,6 +2,7 @@
 
 A fully featured **E-Commerce backend** built using **Django REST Framework**.
 The project provides product browsing, cart handling, ordering, authentication with email activation, newsletter subscription, and a simple blog system — all based on a custom Figma design.
+Figma design => https://www.figma.com/design/ePY1PBPFakApqkvuF7Fhra/E-commerce-web---app--Community-?node-id=28-19120&t=b0Kc1EKsybB9L0Am-0
 
 🚀 Features
 
@@ -115,3 +116,4 @@ The project uses **Jazzmin** to provide a modern, clean admin UI where administr
 * Common
 * Orders
 * Products
+
